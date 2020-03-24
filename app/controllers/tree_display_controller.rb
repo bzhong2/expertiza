@@ -117,7 +117,7 @@ class TreeDisplayController < ApplicationController
         ta_for_current_course?(node)
   end
 
-  def update_is_available(tmp_object, instructor_id, node)
+  def update_is_available_owner_ta(tmp_object, instructor_id, node)
     tmp_object["is_available"] = is_available(session[:user], instructor_id) || (session[:user].role.ta? &&
         Ta.get_my_instructors(session[:user].id).include?(instructor_id) && ta_for_current_course?(node))
   end
@@ -147,7 +147,7 @@ class TreeDisplayController < ApplicationController
     ## if current user's role is TA for a course, then that course will be listed under his course listing.
     update_in_ta_course_listing(instructor_id, node, tmp_object)
     update_instructor(tmp_object, instructor_id)
-    update_is_available(tmp_object, instructor_id, node)
+    update_is_available_owner_ta(tmp_object, instructor_id, node)
     assignments_method(node, tmp_object) if node_type == "Assignments"
   end
 
@@ -253,7 +253,7 @@ class TreeDisplayController < ApplicationController
     false
   end
 
-  def update_is_available_2(res2, instructor_id, child)
+  def update_is_available_instructor(res2, instructor_id, child)
     # current user is the instructor (role can be admin/instructor/ta) of this course. is_available_condition1
     res2["is_available"] = is_available(session[:user], instructor_id) ||
         is_user_ta?(instructor_id, child) ||
@@ -265,7 +265,7 @@ class TreeDisplayController < ApplicationController
     res2["directory"] = child.get_directory
     instructor_id = child.get_instructor_id
     update_instructor(res2, instructor_id)
-    update_is_available_2(res2, instructor_id, child)
+    update_is_available_instructor(res2, instructor_id, child)
     assignments_method(child, res2) if child.type == "AssignmentNode"
   end
 
